@@ -1,5 +1,8 @@
+import torch
+
 from backbones.CLIP import CLIPTextEncoder
 from tqdm import tqdm
+import os
 
 def prompt_generator(dataset):
     class_names = dataset.get_class_names()
@@ -35,3 +38,9 @@ def generate_clip_text_embeddings(args, dataset):
             tqdm_bar.set_postfix({"State": state, "Class": class_name})
     
     return embeddings
+
+def save_model(model, path, epoch):
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
+
+    torch.save(model.state_dict(), os.path.join(path, f'model_epoch_{epoch}.pth'))
