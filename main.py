@@ -1,6 +1,7 @@
 from utils.args import Args
 from pipeline.train import training
 from pipeline.test import testing
+from argparse import ArgumentParser
 
 def main(args):
     if args.mode == "train":
@@ -9,6 +10,15 @@ def main(args):
         testing(args)
 
 if __name__ == "__main__":
+
+    args_parser = ArgumentParser(description="Zero-Shot Anomaly Detection with Attention")
+    args_parser.add_argument('--mode', type=str, default='train', choices=['train', 'test'], help='Mode: train or test')
+    args_parser.add_argument('--dataset_name', type=str, default='mvtec', help='Dataset name')
+    args_parser.add_argument('--start_epochs', type=int, default=0, help='Starting epoch for training or testing')
+    args_parser.add_argument('--end_epochs', type=int, default=20, help='Ending epoch for training or testing')
+    args_parser.add_argument('--device', type=str, default='cuda:0', help='Device to use for training/testing')
+
+    args = args_parser.parse_args()
 
     CLIP_args = {
         "model_id": "openai/clip-vit-large-patch14-336"
@@ -20,14 +30,15 @@ if __name__ == "__main__":
     }
 
     generic_args = {
-        "device": "cuda:0",
+        "device": args.device,
         "base_dir": "./",
-        "dataset_name": "visa",
-        'mode': "test",
+        "dataset_name": args.dataset_name,
+        'mode': args.mode,
         'batch_size': 64,
         'img_size': 512,
         'lr': 1e-4,
-        'epochs': 10,
+        'start_epochs': args.start_epochs,
+        'end_epochs': args.end_epochs,
         'output_dir': './checkpoints',
         'out_dim': 768
     }
