@@ -1,34 +1,31 @@
-
-class DatasetConstants():
+class DatasetConstants:
     def __init__(self, base_path, dataset_name):
-
         self.base_path = base_path
-        self.dataset_name = dataset_name
-        self.data_path = f"{base_path}/{dataset_name}"
+        self.dataset_name = dataset_name.lower()
 
         self.DATA_PATH = {
-            "Brain": f"{base_path}/MedAD/Brain_AD",
-            "Liver": f"{base_path}/MedAD/Liver_AD",
-            "Retina": f"{base_path}/MedAD/Retina_RESC_AD",
-            "Colon_clinicDB": f"{base_path}/Colon/CVC-ClinicDB",
-            "Colon_colonDB": f"{base_path}/Colon/CVC-ColonDB",
-            "Colon_cvc300": f"{base_path}/Colon/CVC-300",
-            "Colon_Kvasir": f"{base_path}/Colon/Kvasir",
-            "BTAD": f"{base_path}/BTech_Dataset_transformed",
-            "MPDD": f"{base_path}/MPDD",
-            "MVTec": f"{base_path}/mvtec_ad",
-            "VisA": f"{base_path}/VisA",
+            "brain": f"{base_path}/MedAD/Brain_AD",
+            "liver": f"{base_path}/MedAD/Liver_AD",
+            "retina": f"{base_path}/MedAD/Retina_RESC_AD",
+            "colon_clinicdb": f"{base_path}/Colon/CVC-ClinicDB",
+            "colon_colondb": f"{base_path}/Colon/CVC-ColonDB",
+            "colon_cvc300": f"{base_path}/Colon/CVC-300",
+            "colon_kvasir": f"{base_path}/Colon/Kvasir",
+            "btad": f"{base_path}/BTech_Dataset_transformed",
+            "mpdd": f"{base_path}/MPDD",
+            "mvtec": f"{base_path}/mvtec",
+            "visa": f"{base_path}/visa",
         }
 
         self.CLASS_NAMES = {
-            "Brain": ["Brain"],
-            "Liver": ["Liver"],
-            "Retina": ["Retina"],
-            "Colon_clinicDB": ["Colon_clinicDB"],
-            "Colon_colonDB": ["Colon_colonDB"],
-            "Colon_Kvasir": ["Kvasir"],
-            "Colon_cvc300": ["CVC-300"],
-            "MVTec": [
+            "brain": ["Brain"],
+            "liver": ["Liver"],
+            "retina": ["Retina"],
+            "colon_clinicdb": ["Colon_clinicDB"],
+            "colon_colondb": ["Colon_colonDB"],
+            "colon_kvasir": ["Kvasir"],
+            "colon_cvc300": ["CVC-300"],
+            "mvtec": [
                 "bottle",
                 "cable",
                 "capsule",
@@ -45,7 +42,7 @@ class DatasetConstants():
                 "wood",
                 "zipper",
             ],
-            "VisA": [
+            "visa": [
                 "candle",
                 "pcb3",
                 "capsules",
@@ -59,7 +56,7 @@ class DatasetConstants():
                 "fryum",
                 "pcb1",
             ],
-            "MPDD": [
+            "mpdd": [
                 "connector",
                 "tubes",
                 "metal_plate",
@@ -67,28 +64,28 @@ class DatasetConstants():
                 "bracket_brown",
                 "bracket_black",
             ],
-            "BTAD": ["01", "02", "03"],
+            "btad": ["01", "02", "03"],
         }
 
         self.DOMAINS = {
-            "VisA": "Industrial",
-            "BTAD": "Industrial",
-            "MPDD": "Industrial",
-            "MVTec": "Industrial",
-            "Brain": "Medical",
-            "Liver": "Medical",
-            "Retina": "Medical",
-            "Colon_clinicDB": "Medical",
-            "Colon_colonDB": "Medical",
-            "Colon_Kvasir": "Medical",
-            "Colon_cvc300": "Medical",
+            "visa": "Industrial",
+            "btad": "Industrial",
+            "mpdd": "Industrial",
+            "mvtec": "Industrial",
+            "brain": "Medical",
+            "liver": "Medical",
+            "retina": "Medical",
+            "colon_clinicdb": "Medical",
+            "colon_colondb": "Medical",
+            "colon_kvasir": "Medical",
+            "colon_cvc300": "Medical",
         }
-        
+
         self.REAL_NAMES = {
-            "Brain": {"Brain": "scan"},
-            "Liver": {"Liver": "scan"},
-            "Retina": {"Retina": "scan"},
-            "MVTec": {
+            "brain": {"Brain": "scan"},
+            "liver": {"Liver": "scan"},
+            "retina": {"Retina": "scan"},
+            "mvtec": {
                 "bottle": "dark bottle",
                 "cable": "top view of three cables",
                 "capsule": "black and orange capsule",
@@ -105,7 +102,7 @@ class DatasetConstants():
                 "wood": "wood surface",
                 "zipper": "a black zipper",
             },
-            "VisA": {
+            "visa": {
                 "candle": "candle",
                 "pcb3": "infrared sensor pcb module",
                 "capsules": "capsules",
@@ -119,15 +116,15 @@ class DatasetConstants():
                 "fryum": "wheel-shaped fryum snack",
                 "pcb1": "dual ultrasonic distance sensor pcb module",
             },
-            "Colon_clinicDB": {
+            "colon_clinicdb": {
                 "Colon_clinicDB": "colon endoscopy image",
             },
-            "Colon_colonDB": {
+            "colon_colondb": {
                 "Colon_colonDB": "colon endoscopy image",
             },
-            "Colon_cvc300": {"CVC-300": "colon endoscopy image"},
-            "Colon_Kvasir": {"Kvasir": "colon endoscopy image"},
-            "MPDD": {
+            "colon_cvc300": {"CVC-300": "colon endoscopy image"},
+            "colon_kvasir": {"Kvasir": "colon endoscopy image"},
+            "mpdd": {
                 "connector": "metal clamps with black adjustment knobs",
                 "tubes": "scattered metal objects",
                 "metal_plate": "blue rectangular metal plate with a notch on one side",
@@ -135,50 +132,79 @@ class DatasetConstants():
                 "bracket_brown": "brown L-shaped metal bracket with smooth, glossy finish and multiple mounting holes along its arms",
                 "bracket_black": "black ornamental metal bracket with spiral design attached to a rectangular frame",
             },
-            "BTAD": {
+            "btad": {
                 "01": "Bright concentric rings in neon yellow and blue tones against a dark blue background, resembling a stylized wave or energy field radiating outward.",
                 "02": "vertical fabric lines in warm, dusty pink and beige tones",
                 "03": "oval concentric circular rings in gradient shades of blue and white",
             },
         }
-        
+
         self.PROMPTS = {
-            "prompt_normal": ["{}", "a {}", "the {}"],
-            "prompt_abnormal": [
-                "a damaged {}",
-                "a broken {}",
-                "a {} with flaw",
-                "a {} with defect",
-                "a {} with damage",
-            ],
-            "prompt_templates": [
-                "{}.",
-                "a photo of {}.",
-            ],
+            "prompt_normal": ['{}', 'flawless {}', 'perfect {}', 'unblemished {}', 
+                              '{} without flaw', '{} without defect', '{} without damage'],
+            "prompt_abnormal": ['damaged {}', 'broken {}', '{} with flaw', 
+                                '{} with defect', '{} with damage'],
+            "prompt_templates": ['a bad photo of a {}.', 
+                                 'a low resolution photo of the {}.', 
+                                 'a bad photo of the {}.', 
+                                 'a cropped photo of the {}.', 
+                                 'a bright photo of a {}.', 
+                                 'a dark photo of the {}.', 
+                                 'a photo of my {}.', 
+                                 'a photo of the cool {}.', 
+                                 'a close-up photo of a {}.', 
+                                 'a black and white photo of the {}.', 
+                                 'a bright photo of the {}.', 
+                                 'a cropped photo of a {}.', 
+                                 'a jpeg corrupted photo of a {}.', 
+                                 'a blurry photo of the {}.', 
+                                 'a photo of the {}.', 
+                                 'a good photo of the {}.', 
+                                 'a photo of one {}.', 
+                                 'a close-up photo of the {}.', 
+                                 'a photo of a {}.', 
+                                 'a low resolution photo of a {}.', 
+                                 'a photo of a large {}.', 
+                                 'a blurry photo of a {}.', 
+                                 'a jpeg corrupted photo of the {}.', 
+                                 'a good photo of a {}.', 
+                                 'a photo of the small {}.', 
+                                 'a photo of the large {}.', 
+                                 'a black and white photo of a {}.', 
+                                 'a dark photo of a {}.', 
+                                 'a photo of a cool {}.',
+                                'a photo of a small {}.', 
+                                'there is a {} in the scene.', 
+                                'there is the {} in the scene.', 
+                                'this is a {} in the scene.', 
+                                'this is the {} in the scene.', 
+                                'this is one {} in the scene.']
         }
 
     def get_data_path(self):
         return self.DATA_PATH[self.dataset_name]
-    
+
     def get_class_names(self):
         return self.CLASS_NAMES[self.dataset_name]
-    
+
     def get_domain(self):
         return self.DOMAINS[self.dataset_name]
-    
+
     def get_real_names(self):
         return self.REAL_NAMES[self.dataset_name]
-    
+
     def get_real_name(self, class_name):
         return self.REAL_NAMES[self.dataset_name][class_name]
 
     def get_prompts(self):
         return self.PROMPTS
-        
+
+
 if __name__ == "__main__":
     base_path = "/path/to/datasets"
-    dataset_name = "MVTec"
+    dataset_name = "MVTec"   # works, gets converted to "mvtec"
     constants = DatasetConstants(base_path, dataset_name)
+
     print(constants.get_data_path())
     print(constants.get_class_names())
     print(constants.get_domain())
