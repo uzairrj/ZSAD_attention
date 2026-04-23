@@ -22,6 +22,15 @@ def training(args):
     transform_img, transform_mask = get_transforms(args.img_size)
 
     model = ZSADModel(args).to(args.device)
+
+    if args.start_epochs > 0 and os.path.exists(os.path.join(args.output_dir, f'model_epoch_{args.start_epochs}.pth')):
+        model_path = os.path.join(args.output_dir, f'model_epoch_{args.start_epochs}.pth')
+        print(f"Loading model from: {model_path}")
+        model.load_state_dict(torch.load(model_path))
+    else:
+        print("No pre-trained model found. Starting training from scratch.")
+        args.start_epochs = 0
+
     image_encoder = DINOImageEncoder(args.vision_model_id, args.vision_layers, device=args.device)
 
     dataset = get_data(args.dataset_name, transform_img, transform_mask, training=True)
@@ -37,7 +46,7 @@ def training(args):
 
     json.dump(vars(args), open(os.path.join(args.output_dir, f'args.json'), 'w'), indent=4)
 
-    for epoch in range(args.epochs):
+    for epoch in range(args.start_epochs+1, args.end_epochs):
         losses = {
             'anomaly_awareness_loss': 0.0,
             'segmentation_loss': 0.0,
@@ -79,5 +88,5 @@ def training(args):
             optimizer.step()
         
         losses = {k: v / len(dataloader) for k, v in losses.items()}
-        print(f"Epoch {epoch+1}/{args.epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']/len(dataloader):.4f}, Segmentation Loss: {losses['segmentation_loss']/len(dataloader):.4f}, Global Anomaly Loss: {losses['global_anomaly_loss']/len(dataloader):.4f}, Total Loss: {losses['total_loss']/len(dataloader):.4f}", flush=True)
+        print(f"Epoch {epoch+1}/{args.end_epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']/len(dataloader):.4f}, Segmentation Loss: {losses['segmentation_loss']/len(dataloader):.4f}, Global Anomaly Loss: {losses['global_anomaly_loss']/len(dataloader):.4f}, Total Loss: {losses['total_loss']/len(dataloader):.4f}", flush=True)
         save_model(model, args.output_dir, epoch+1)
