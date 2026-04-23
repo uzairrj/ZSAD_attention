@@ -3,6 +3,7 @@ import torch
 from backbones.CLIP import CLIPTextEncoder
 from tqdm import tqdm
 import os
+import numpy as np
 
 def prompt_generator(dataset):
     class_names = dataset.get_class_names()
@@ -44,3 +45,54 @@ def save_model(model, path, epoch):
         os.makedirs(path, exist_ok=True)
 
     torch.save(model.state_dict(), os.path.join(path, f'model_epoch_{epoch}.pth'))
+
+def fast_auc_and_best_f1(y_true, y_score):
+    """
+    Exact AUROC + best F1 using one sort only.
+    y_true: binary array (0/1)
+    y_score: continuous scores
+    """
+    y_true = np.asarray(y_true, dtype=np.uint8).ravel()
+    y_score = np.asarray(y_score, dtype=np.float32).ravel()
+
+    n = y_true.size
+    n_pos = int(y_true.sum())
+    n_neg = n - n_pos
+
+    # Edge cases
+    if n_pos == 0:
+        return float("nan"), 0.0
+    if n_neg == 0:
+        return float("nan"), 1.0
+
+    # Sort once by descending score
+    order = np.argsort(-y_score, kind="mergesort")
+    y_score_sorted = y_score[order]
+    y_true_sorted = y_true[order]
+
+    tp = np.cumsum(y_true_sorted, dtype=np.int64)
+    fp = np.cumsum(1 - y_true_sorted, dtype=np.int64)
+
+    # Keep only points where threshold changes
+    distinct = np.r_[y_score_sorted[1:] != y_score_sorted[:-1], True]
+    idx = np.flatnonzero(distinct)
+
+    tp = tp[idx]
+    fp = fp[idx]
+
+    # ----- Best F1 -----
+    precision = tp / (tp + fp)
+    recall = tp / n_pos
+    f1 = 2.0 * precision * recall / (precision + recall + 1e-12)
+    best_f1 = float(f1.max()) if f1.size > 0 else 0.0
+
+    # ----- AUROC -----
+    tpr = tp / n_pos
+    fpr = fp / n_neg
+
+    # prepend origin
+    tpr = np.r_[0.0, tpr]
+    fpr = np.r_[0.0, fpr]
+
+    auroc = float(np.trapezoid(tpr, fpr))
+    return auroc, best_f1
