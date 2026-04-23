@@ -4,7 +4,7 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve
 import torch
 import json
 from datasets.constants import DatasetConstants
-from utils.utils import generate_clip_text_embeddings
+from utils.utils import generate_clip_text_embeddings, fast_auc_and_best_f1
 from tqdm import tqdm
 from backbones.DINO import DINOImageEncoder
 from torch.utils.data import DataLoader
@@ -49,22 +49,23 @@ def testing_epoch(dataloader, model, image_encoder, text_embeddings):
     pred_mask_list = np.array(pixel_pred) 
     cls_list = np.array(cls_list)
 
+    cls_list = np.asarray(cls_list)
+    gt_mask_list = np.asarray(gt_mask_list)
+    pred_mask_list = np.asarray(pred_mask_list, dtype=np.float32)
+
+
     class_metrics = {}
     auroc_list = []
     f1_list = []
 
     for cls_name in np.unique(cls_list):
-        idx = cls_list == cls_name
+        idx = (cls_list == cls_name)
 
-        gt_cls = gt_mask_list[idx].flatten()
-        pred_cls = pred_mask_list[idx].flatten()
+        # ravel() avoids unnecessary copies when possible
+        gt_cls = gt_mask_list[idx].ravel().astype(np.uint8, copy=False)
+        pred_cls = pred_mask_list[idx].ravel().astype(np.float32, copy=False)
 
-        if len(np.unique(gt_cls)) < 2:
-            auroc = float("nan")
-        else:
-            auroc = roc_auc_score(gt_cls, pred_cls)
-
-        f1 = compute_best_f1(gt_cls, pred_cls)
+        auroc, f1 = fast_auc_and_best_f1(gt_cls, pred_cls)
 
         class_metrics[cls_name] = {
             "AUROC": auroc,
@@ -98,13 +99,10 @@ def testing(args):
     dataset = get_data(args.dataset_name, transform_img, transform_mask, training=False)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=4, pin_memory=True)
 
-    os.listdir(args.output_dir)
-    model_files = [f for f in os.listdir(args.output_dir) if f.startswith('model_epoch_') and f.endswith('.pth')]
-    model_files.sort(key=lambda x: int(x.split('_')[2].split('.')[0]))
-
-    for idx, m in enumerate(model_files):
-        print(f"Testing with model: { m }")
-        model_path = os.path.join(args.output_dir, m)
+    for i in range(args.start_epochs, args.end_epochs):
+        model_name = f'model_epoch_{i+1}.pth'
+        print(f"Testing with model: {model_name}")
+        model_path = os.path.join(args.output_dir, model_name)
         model.load_state_dict(torch.load(model_path))
         model.eval()
         with torch.no_grad():
