@@ -1,3 +1,5 @@
+import json
+
 import torch
 
 from backbones.CLIP import CLIPTextEncoder
@@ -11,16 +13,32 @@ def prompt_generator(dataset):
     prompts = dataset.get_prompts()
 
     generated_prompts = {'normal': {}, 'abnormal': {}}
+
+    # initialize once per class
+    for class_name in class_names:
+        generated_prompts['normal'][class_name] = []
+        generated_prompts['abnormal'][class_name] = []
+
+    # then append prompts
     for template in prompts["prompt_templates"]:
         for class_name in class_names:
             real_name = real_names[class_name]
-            generated_prompts['normal'][class_name] = []
-            generated_prompts['abnormal'][class_name] = []
+
             for normal_template in prompts["prompt_normal"]:
-                generated_prompts['normal'][class_name].append(template.format(normal_template.format(real_name)))
+                text = normal_template.format(real_name)
+                generated_prompts['normal'][class_name].append(
+                    template.format(text)
+                )
+
             for abnormal_template in prompts["prompt_abnormal"]:
-                generated_prompts['abnormal'][class_name].append(template.format(abnormal_template.format(real_name)))
-    
+                text = abnormal_template.format(real_name)
+                generated_prompts['abnormal'][class_name].append(
+                    template.format(text)
+                )
+
+    with open(f'{dataset.dataset_name}_generated_prompts.json', 'w') as f:
+        json.dump(generated_prompts, f, indent=4)
+
     return generated_prompts
 
 def generate_clip_text_embeddings(args, dataset):
@@ -29,7 +47,7 @@ def generate_clip_text_embeddings(args, dataset):
 
     embeddings = {}
     
-    total = sum(1 for state in prompts.keys() for class_name in prompts[state].keys())
+    total = sum(1 for state in prompts.keys() for _ in prompts[state].keys())
     tqdm_bar = tqdm(total=total, desc="Encoding prompts with CLIP")
     for state in prompts.keys():
         embeddings[state] = {}
