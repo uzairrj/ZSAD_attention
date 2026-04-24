@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     DINO_args = {
         "vision_model_id": "facebook/dinov3-vitl16-pretrain-lvd1689m",
-        'vision_layers': [5,11,17,23]
+        'vision_layers': [6,12,18,24]
     }
 
     generic_args = {
