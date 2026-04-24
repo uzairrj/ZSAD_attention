@@ -18,13 +18,13 @@ class ZSADModel(Module):
         self.img_size = args.img_size
         
     def cross_model_contrastive_learning(self, adapted_text_embeddings,patch_embeddings_adapted):
-        anomaly_map_cross_modal = 100 * patch_embeddings_adapted @ adapted_text_embeddings
+        anomaly_map_cross_modal = 100 * (patch_embeddings_adapted @ adapted_text_embeddings)
         anomaly_map_cross_modal = F.interpolate(anomaly_map_cross_modal.permute(0, 2, 1).view(-1, 2, 32, 32),
                                     size=self.img_size, mode='bilinear', align_corners=True)
         return torch.softmax(anomaly_map_cross_modal, dim=1)
 
     def anomaly_aware_calibration(self, adapted_patch_features, cls_embeddings_adapted):
-        anomaly_awareness_cls_patch = 10 * adapted_patch_features @ cls_embeddings_adapted.squeeze().unsqueeze(-1)
+        anomaly_awareness_cls_patch = 10 * (adapted_patch_features @ cls_embeddings_adapted.squeeze().unsqueeze(-1))
         anomaly_awareness_cls_patch = F.interpolate(anomaly_awareness_cls_patch.permute(0, 2, 1).view(-1, 1, 32, 32),
                                     size=self.img_size, mode='bilinear', align_corners=True)
         anomaly_awareness_cls_patch = torch.sigmoid(anomaly_awareness_cls_patch)
@@ -32,13 +32,13 @@ class ZSADModel(Module):
     
 
     def global_anomaly_allignment(self, cls_embeddings_adapted, adapted_text_embeddings):
-        return torch.einsum('bd,bdk->bk', cls_embeddings_adapted , adapted_text_embeddings)
+        return 100 * (torch.einsum('bd,bdk->bk', cls_embeddings_adapted , adapted_text_embeddings))
     
     def forward(self, text_embeddings, image_features):
         positive_text_adapted = self.positive_text_adapter(text_embeddings[:, 0, :])
-        positive_text_adapted = positive_text_adapted / (positive_text_adapted.norm(dim=-1, keepdim=True)+ 1e-8)
+        # positive_text_adapted = positive_text_adapted / (positive_text_adapted.norm(dim=-1, keepdim=True)+ 1e-8)
         negative_text_adapted = self.negative_text_adapter(text_embeddings[:, 1, :])
-        negative_text_adapted = negative_text_adapted / (negative_text_adapted.norm(dim=-1, keepdim=True)+ 1e-8)
+        # negative_text_adapted = negative_text_adapted / (negative_text_adapted.norm(dim=-1, keepdim=True)+ 1e-8)
 
         adapted_text_embeddings = torch.stack(
                 [positive_text_adapted, negative_text_adapted], dim=-1
