@@ -27,6 +27,7 @@ def training(args):
         model_path = os.path.join(args.output_dir, f'model_epoch_{args.start_epochs}.pth')
         print(f"Loading model from: {model_path}")
         model.load_state_dict(torch.load(model_path))
+        args.start_epochs += 1
     else:
         print("No pre-trained model found. Starting training from scratch.")
         args.start_epochs = 0
@@ -46,7 +47,7 @@ def training(args):
 
     json.dump(vars(args), open(os.path.join(args.output_dir, f'args.json'), 'w'), indent=4)
 
-    for epoch in range(args.start_epochs+1, args.end_epochs):
+    for epoch in range(args.start_epochs, args.end_epochs):
         losses = {
             'anomaly_awareness_loss': 0.0,
             'segmentation_loss': 0.0,
