@@ -1,9 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-BTAD_ROOT = os.path.join(DATA_ROOT, 'BTech_Dataset_transformed')
+BTAD_ROOT = '/media/data/ukhan/data/computer_vision/btad'
 
 class BTADSolver(object):
     CLSNAMES = [

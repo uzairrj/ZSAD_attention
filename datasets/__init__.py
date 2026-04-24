@@ -2,7 +2,7 @@ from .constants import DatasetConstants
 from .mvtec import MVTecDataset
 from .visa import VisaDataset
 # from .mpdd import MPDD_CLS_NAMES, MPDDDataset, MPDD_ROOT
-# from .btad import BTAD_CLS_NAMES, BTADDataset, BTAD_ROOT
+from .btad import BTADDataset
 # from .sdd import SDD_CLS_NAMES, SDDDataset, SDD_ROOT
 # from .dagm import DAGM_CLS_NAMES, DAGMDataset, DAGM_ROOT
 # from .dtd import DTD_CLS_NAMES,DTDDataset,DTD_ROOT
@@ -19,11 +19,12 @@ base_dir = '/media/data/ukhan/data/computer_vision'
 
 mvtec_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='MVTec')
 visa_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='VisA')
+btad_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='btad')
 
 dataset_dict = {
     # 'br35h': (Br35h_CLS_NAMES, Br35hDataset, Br35h_ROOT),
     # 'brain_mri': (BrainMRI_CLS_NAMES, BrainMRIDataset, BrainMRI_ROOT),
-    # 'btad': (BTAD_CLS_NAMES, BTADDataset, BTAD_ROOT),
+    'btad': (btad_dataset_constants.get_class_names(), BTADDataset, btad_dataset_constants.get_data_path()),
     # 'clinicdb': (ClinicDB_CLS_NAMES, ClinicDBDataset, ClinicDB_ROOT),
     # 'colondb': (ColonDB_CLS_NAMES, ColonDBDataset, ColonDB_ROOT),
     # 'dagm': (DAGM_CLS_NAMES, DAGMDataset, DAGM_ROOT),
