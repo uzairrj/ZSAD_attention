@@ -3,7 +3,7 @@ import os
 import torch
 import json
 from datasets.constants import DatasetConstants
-from utils.loss import FocalLoss, BinaryDiceLoss
+from utils.loss import BinaryDiceLoss, BinaryFocalLossWithLogits
 from utils.utils import generate_clip_text_embeddings, save_model
 from tqdm import tqdm
 from backbones.DINO import DINOImageEncoder
@@ -11,7 +11,6 @@ from torch.utils.data import DataLoader
 from datasets import get_data
 from utils.transformations import get_transforms
 from model.model import ZSADModel
-from torch.nn import functional as F
 
 def training(args):
     dataset_constants = DatasetConstants(args.base_dir, args.dataset_name)
@@ -37,8 +36,8 @@ def training(args):
     dataset = get_data(args.dataset_name, transform_img, transform_mask, training=True)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4, pin_memory=True)
 
-    loss_focal = FocalLoss()
     loss_dice = BinaryDiceLoss()
+    loss_focal = BinaryFocalLossWithLogits(alpha=0.75, gamma=2.0)
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, betas=(0.9, 0.999), weight_decay=1e-2)
 
@@ -64,30 +63,33 @@ def training(args):
 
             normal_batch = torch.stack(normal_list, dim=0)
             abnormal_batch = torch.stack(abnormal_list, dim=0)
-            batched_text_embeddings = torch.stack([normal_batch, abnormal_batch], dim=1)
+            batched_text_embeddings = (normal_batch, abnormal_batch)
             
             cls, patches = image_encoder(data['img'])
 
-            cross_model_contrastive, anomaly_aware_calibration, global_anomaly_alignment = model(batched_text_embeddings, [cls, patches])
+            cross_model_contrastive, global_anomaly_alignment = model(batched_text_embeddings, [cls, patches])
             
             
-            mask = data['img_mask'].to(args.device)
+            mask = data['img_mask'].to(args.device).float()
 
-            anomaly_awareness_loss = loss_focal(anomaly_aware_calibration, mask) + loss_dice(anomaly_aware_calibration[:, 1, :, :], mask)
-            seg_loss = loss_focal(cross_model_contrastive, mask) + loss_dice(cross_model_contrastive[:, 1, :, :], mask)
-            global_anomaly_loss = F.cross_entropy(global_anomaly_alignment.squeeze(1), data['anomaly'].to(args.device).long())
-            loss = 0.25 * anomaly_awareness_loss + 0.5 * seg_loss + 0.25 * global_anomaly_loss
+            # anomaly_awareness_prob = torch.sigmoid(anomaly_aware_calibration)
+            cross_model_prob = torch.sigmoid(cross_model_contrastive)
+            anomaly_targets = data['anomaly'].to(args.device).float().unsqueeze(1)
 
-            losses['anomaly_awareness_loss'] += anomaly_awareness_loss.item()
+            # anomaly_awareness_loss = F.binary_cross_entropy_with_logits(anomaly_aware_calibration, mask) + loss_dice(anomaly_awareness_prob, mask)
+            seg_loss = loss_focal(cross_model_contrastive, mask) + loss_dice(cross_model_prob, mask)
+            global_anomaly_loss = loss_focal(global_anomaly_alignment, anomaly_targets)
+            loss =   0.5 * seg_loss + 0.5 * global_anomaly_loss
+
+            # losses['anomaly_awareness_loss'] += anomaly_awareness_loss.item()
             losses['segmentation_loss'] += seg_loss.item()
             losses['global_anomaly_loss'] += global_anomaly_loss.item()
             losses['total_loss'] += loss.item()
 
-            loss.requires_grad_(True)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
         
         losses = {k: v / len(dataloader) for k, v in losses.items()}
-        print(f"Epoch {epoch+1}/{args.end_epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']/len(dataloader):.4f}, Segmentation Loss: {losses['segmentation_loss']/len(dataloader):.4f}, Global Anomaly Loss: {losses['global_anomaly_loss']/len(dataloader):.4f}, Total Loss: {losses['total_loss']/len(dataloader):.4f}", flush=True)
+        print(f"Epoch {epoch+1}/{args.end_epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']:.4f}, Segmentation Loss: {losses['segmentation_loss']:.4f}, Global Anomaly Loss: {losses['global_anomaly_loss']:.4f}, Total Loss: {losses['total_loss']:.4f}", flush=True)
         save_model(model, args.output_dir, epoch+1)

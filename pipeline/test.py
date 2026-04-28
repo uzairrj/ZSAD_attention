@@ -22,6 +22,8 @@ def compute_best_f1(y_true, y_score):
 def testing_epoch(dataloader, model, image_encoder, text_embeddings):
     pixel_gt = []
     pixel_pred = []
+    image_gt = []
+    image_pred = []
     img_list = []
     cls_list = []
     for data in tqdm(dataloader):
@@ -34,29 +36,37 @@ def testing_epoch(dataloader, model, image_encoder, text_embeddings):
 
         normal_batch = torch.stack(normal_list, dim=0)
         abnormal_batch = torch.stack(abnormal_list, dim=0)
-        batched_text_embeddings = torch.stack([normal_batch, abnormal_batch], dim=1)
+        batched_text_embeddings = (normal_batch, abnormal_batch)
         
         cls, patches = image_encoder(data['img'])
 
-        cross_model_contrastive, anomaly_aware_calibration, global_anomaly_alignment = model(batched_text_embeddings, [cls, patches])
+        cross_model_contrastive, global_anomaly_alignment = model(batched_text_embeddings, [cls, patches])
 
         pixel_gt.extend(data['img_mask'].squeeze(1).cpu().detach().numpy())
+        image_gt.extend(data['anomaly'].cpu().detach().numpy())
         img_list.extend(data["img_path"])
-        pixel_pred.extend(cross_model_contrastive[:, 1, :, :].cpu().detach().numpy())
+        pixel_pred.extend(torch.sigmoid(cross_model_contrastive[:, 0, :, :]).cpu().detach().numpy())
+        image_pred.extend(torch.sigmoid(global_anomaly_alignment).view(-1).cpu().detach().numpy())
         cls_list.extend(data['cls_name'])
 
     gt_mask_list = np.array(pixel_gt)   
     pred_mask_list = np.array(pixel_pred) 
+    gt_image_list = np.array(image_gt)
+    pred_image_list = np.array(image_pred)
     cls_list = np.array(cls_list)
 
     cls_list = np.asarray(cls_list)
     gt_mask_list = np.asarray(gt_mask_list)
     pred_mask_list = np.asarray(pred_mask_list, dtype=np.float32)
+    gt_image_list = np.asarray(gt_image_list, dtype=np.uint8)
+    pred_image_list = np.asarray(pred_image_list, dtype=np.float32)
 
 
     class_metrics = {}
     auroc_list = []
     f1_list = []
+    image_auroc_list = []
+    image_f1_list = []
 
     for cls_name in np.unique(cls_list):
         idx = (cls_list == cls_name)
@@ -64,25 +74,41 @@ def testing_epoch(dataloader, model, image_encoder, text_embeddings):
         # ravel() avoids unnecessary copies when possible
         gt_cls = gt_mask_list[idx].ravel().astype(np.uint8, copy=False)
         pred_cls = pred_mask_list[idx].ravel().astype(np.float32, copy=False)
+        gt_image_cls = gt_image_list[idx].astype(np.uint8, copy=False)
+        pred_image_cls = pred_image_list[idx].astype(np.float32, copy=False)
 
         auroc, f1 = fast_auc_and_best_f1(gt_cls, pred_cls)
+        image_auroc, image_f1 = fast_auc_and_best_f1(gt_image_cls, pred_image_cls)
 
         class_metrics[cls_name] = {
-            "AUROC": auroc,
-            "F1": f1,
+            "Pixel_AUROC": auroc,
+            "Pixel_F1": f1,
+            "Image_AUROC": image_auroc,
+            "Image_F1": image_f1,
         }
 
         if not np.isnan(auroc):
             auroc_list.append(auroc)
         f1_list.append(f1)
+        if not np.isnan(image_auroc):
+            image_auroc_list.append(image_auroc)
+        image_f1_list.append(image_f1)
 
-        print(f"{cls_name}: AUC_Pixel={auroc:.5f}\tF1_Pixel={f1:.5f}")
+        print(
+            f"{cls_name}: "
+            f"AUC_Pixel={auroc:.5f}\tF1_Pixel={f1:.5f}\t"
+            f"AUC_Image={image_auroc:.5f}\tF1_Image={image_f1:.5f}"
+        )
 
     mean_auroc = np.mean(auroc_list) if len(auroc_list) > 0 else float("nan")
     mean_f1 = np.mean(f1_list) if len(f1_list) > 0 else float("nan")
+    mean_image_auroc = np.mean(image_auroc_list) if len(image_auroc_list) > 0 else float("nan")
+    mean_image_f1 = np.mean(image_f1_list) if len(image_f1_list) > 0 else float("nan")
 
     print(f"\nMean AUC_Pixel: {mean_auroc:.5f}")
     print(f"Mean F1_Pixel:  {mean_f1:.5f}")
+    print(f"Mean AUC_Image: {mean_image_auroc:.5f}")
+    print(f"Mean F1_Image:  {mean_image_f1:.5f}")
 
 
 def testing(args):
