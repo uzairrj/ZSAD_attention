@@ -209,3 +209,6 @@ __marimo__/
 .vscode/
 checkpoints/
 *.json
+*.pt
+*.pth
+*.logs
