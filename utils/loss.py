@@ -100,3 +100,28 @@ class BinaryDiceLoss(nn.Module):
         N_dice_eff = (2 * intersection.sum(1) + smooth) / (input_flat.sum(1) + targets_flat.sum(1) + smooth)
         loss = 1 - N_dice_eff.sum() / N
         return loss
+
+
+class BinaryFocalLossWithLogits(nn.Module):
+    def __init__(self, alpha=0.75, gamma=2.0, reduction="mean"):
+        super(BinaryFocalLossWithLogits, self).__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, logits, targets):
+        targets = targets.type_as(logits)
+        bce_loss = F.binary_cross_entropy_with_logits(logits, targets, reduction="none")
+        prob = torch.sigmoid(logits)
+        p_t = prob * targets + (1 - prob) * (1 - targets)
+        loss = bce_loss * ((1 - p_t) ** self.gamma)
+
+        if self.alpha is not None:
+            alpha_t = self.alpha * targets + (1 - self.alpha) * (1 - targets)
+            loss = alpha_t * loss
+
+        if self.reduction == "mean":
+            return loss.mean()
+        if self.reduction == "sum":
+            return loss.sum()
+        return loss
