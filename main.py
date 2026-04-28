@@ -34,7 +34,7 @@ if __name__ == "__main__":
         "base_dir": "./",
         "dataset_name": args.dataset_name,
         'mode': args.mode,
-        'batch_size': 64,
+        'batch_size': 32,
         'img_size': 512,
         'lr': 1e-4,
         'start_epochs': args.start_epochs,
