@@ -1,9 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-MPDD_ROOT = os.path.join(DATA_ROOT, 'MPDD')
+MPDD_ROOT = "/media/data/ukhan/data/computer_vision/MPDD"
 
 class MPDDSolver(object):
     CLSNAMES = [

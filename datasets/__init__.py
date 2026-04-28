@@ -3,6 +3,7 @@ from .mvtec import MVTecDataset
 from .visa import VisaDataset
 # from .mpdd import MPDD_CLS_NAMES, MPDDDataset, MPDD_ROOT
 from .btad import BTADDataset
+from .mpdd import MPDDDataset
 # from .sdd import SDD_CLS_NAMES, SDDDataset, SDD_ROOT
 # from .dagm import DAGM_CLS_NAMES, DAGMDataset, DAGM_ROOT
 # from .dtd import DTD_CLS_NAMES,DTDDataset,DTD_ROOT
@@ -13,13 +14,14 @@ from .btad import BTADDataset
 # from .headct import HEADCT_CLS_NAMES,HEADCTDataset,HEADCT_ROOT
 # from .brain_mri import BrainMRI_CLS_NAMES,BrainMRIDataset,BrainMRI_ROOT
 # from .br35h import Br35h_CLS_NAMES,Br35hDataset,Br35h_ROOT
-from torch.utils.data import ConcatDataset
+# from torch.utils.data import ConcatDataset
 
 base_dir = '/media/data/ukhan/data/computer_vision'
 
 mvtec_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='MVTec')
 visa_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='VisA')
 btad_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='btad')
+mpdd_dataset_constants = DatasetConstants(base_path=base_dir, dataset_name='MPDD')
 
 dataset_dict = {
     # 'br35h': (Br35h_CLS_NAMES, Br35hDataset, Br35h_ROOT),
@@ -31,7 +33,7 @@ dataset_dict = {
     # 'dtd': (DTD_CLS_NAMES, DTDDataset, DTD_ROOT),
     # 'headct': (HEADCT_CLS_NAMES, HEADCTDataset, HEADCT_ROOT),
     # 'isic': (ISIC_CLS_NAMES, ISICDataset, ISIC_ROOT),
-    # 'mpdd': (MPDD_CLS_NAMES, MPDDDataset, MPDD_ROOT),
+    'mpdd': (mpdd_dataset_constants.get_class_names(), MPDDDataset, mpdd_dataset_constants.get_data_path()),
     # 'sdd': (SDD_CLS_NAMES, SDDDataset, SDD_ROOT),
     # 'tn3k': (TN3K_CLS_NAMES, TN3KDataset, TN3K_ROOT),
     'mvtec': (mvtec_dataset_constants.get_class_names(), MVTecDataset, mvtec_dataset_constants.get_data_path()),
