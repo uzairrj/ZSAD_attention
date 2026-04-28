@@ -23,11 +23,8 @@ class CLIPTextEncoder():
         with torch.inference_mode():
             text_features = self.model.get_text_features(**inputs).pooler_output
             text_features = text_features / text_features.norm(dim=-1, keepdim=True)
-            # We average the text features for each class to get a single embedding per class we need to remove it later on
-            mean_text_features = text_features.mean(dim=0)
-            mean_text_features = mean_text_features / mean_text_features.norm(dim=0)
 
-        return mean_text_features
+        return text_features
     
 if __name__ == "__main__":
     encoder = CLIPTextEncoder()
