@@ -35,7 +35,7 @@ if __name__ == "__main__":
         "dataset_name": args.dataset_name,
         'mode': args.mode,
         'batch_size': 32,
-        'img_size': 512,
+        'img_size': 768,
         'lr': 1e-4,
         'start_epochs': args.start_epochs,
         'end_epochs': args.end_epochs,
