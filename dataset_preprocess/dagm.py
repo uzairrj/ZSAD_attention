@@ -1,7 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
+
+DATA_ROOT = '/media/data/ukhan/data/computer_vision'
 
 DAGM_ROOT = os.path.join(DATA_ROOT, 'DAGM_anomaly_detection')
 

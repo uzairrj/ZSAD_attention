@@ -15,6 +15,10 @@ class DatasetConstants:
             "mpdd": f"{base_path}/MPDD",
             "mvtec": f"{base_path}/mvtec",
             "visa": f"{base_path}/visa",
+            "dtd": f"{base_path}/DTD-Synthetic",
+            "ksdd": f"{base_path}/SDD_anomaly_detection",
+            "dagm": f"{base_path}/DAGM_anomaly_detection",
+            "ksdd2": f"{base_path}/KSDD2",
         }
 
         self.CLASS_NAMES = {
@@ -65,6 +69,34 @@ class DatasetConstants:
                 "bracket_black",
             ],
             "btad": ["01", "02", "03"],
+            "dtd": [
+                "Blotchy_099",
+                "Fibrous_183",
+                "Marbled_078",
+                "Matted_069",
+                "Mesh_114",
+                "Perforated_037",
+                "Stratified_154",
+                "Woven_001",
+                "Woven_068",
+                "Woven_104",
+                "Woven_125",
+                "Woven_127",
+            ],
+            "ksdd": ["SDD"],
+            "dagm": [
+                "Class1",
+                "Class2",
+                "Class3",
+                "Class4",
+                "Class5",
+                "Class6",
+                "Class7",
+                "Class8",
+                "Class9",
+                "Class10",
+            ],
+            "ksdd2": ["SDD2"],
         }
 
         self.DOMAINS = {
@@ -79,6 +111,10 @@ class DatasetConstants:
             "colon_colondb": "Medical",
             "colon_kvasir": "Medical",
             "colon_cvc300": "Medical",
+            "dtd": "industrial",
+            "ksdd": "industrial",
+            "dagm": "industrial",
+            "ksdd2": "industrial",
         }
 
         self.REAL_NAMES = {
@@ -145,7 +181,39 @@ class DatasetConstants:
                 "02": "vertical fabric lines in warm, dusty pink and beige tones",
                 "03": "oval concentric circular rings in gradient shades of blue and white",
             },
-        }
+            "dtd": {
+                "Blotchy_099": "blotchy synthetic texture surface",
+                "Fibrous_183": "fibrous synthetic texture surface",
+                "Marbled_078": "marbled synthetic texture surface",
+                "Matted_069": "matted synthetic texture surface",
+                "Mesh_114": "mesh synthetic texture surface",
+                "Perforated_037": "perforated synthetic texture surface",
+                "Stratified_154": "stratified synthetic texture surface",
+                "Woven_001": "woven synthetic texture surface",
+                "Woven_068": "woven synthetic texture surface",
+                "Woven_104": "woven synthetic texture surface",
+                "Woven_125": "woven synthetic texture surface",
+                "Woven_127": "woven synthetic texture surface",
+            },
+            "ksdd": {
+                "SDD": "rough grayscale industrial surface"
+            },
+            "ksdd2": {
+                "SDD2": "rough grayscale industrial surface"
+            },
+            "dagm": {
+                    "Class1": "dark fine-grained grayscale industrial texture surface",
+                    "Class2": "vertical fibrous grayscale industrial texture surface",
+                    "Class3": "mottled granular grayscale industrial texture surface",
+                    "Class4": "light radial line grayscale industrial texture surface",
+                    "Class5": "cloudy coarse-grained grayscale industrial texture surface",
+                    "Class6": "high-contrast speckled black and white industrial texture surface",
+                    "Class7": "pale vertical scratched grayscale industrial texture surface",
+                    "Class8": "striped wavy grayscale industrial texture surface",
+                    "Class9": "coarse noisy grayscale industrial texture surface",
+                    "Class10": "light brushed grayscale industrial texture surface",
+                },
+                }
 
         self.PROMPTS = {
             "prompt_normal": ['{}', 'flawless {}', 'perfect {}', 'unblemished {}', 
