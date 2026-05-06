@@ -1,13 +1,12 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-BrainMRI_ROOT = os.path.join(DATA_ROOT, 'BrainMRI')
+BrainMRI_ROOT = "/media/data/ukhan/data/medical_cv/BrainMRI"
 
 class BrainMRISolver(object):
     CLSNAMES = [
-        'brain_mri',
+        'brainmri',
     ]
 
     def __init__(self, root=BrainMRI_ROOT, train_ratio=0.5):

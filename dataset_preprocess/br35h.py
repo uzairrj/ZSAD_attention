@@ -1,9 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-Br35h_ROOT = os.path.join(DATA_ROOT, 'Br35h_anomaly_detection')
+Br35h_ROOT = "/media/data/ukhan/data/medical_cv/Br35h_anomaly_detection"
 class Br35hSolver(object):
     CLSNAMES = [
         'br35h',

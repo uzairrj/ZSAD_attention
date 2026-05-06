@@ -1,13 +1,13 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-ColonDB_ROOT = os.path.join(DATA_ROOT, 'CVC-ColonDB')
+
+ColonDB_ROOT = "/media/data/ukhan/data/medical_cv/ColonDB"
 
 class ColonDBSolver(object):
     CLSNAMES = [
-        'ColonDB',
+        'Colon_colonDB',
     ]
 
     def __init__(self, root=ColonDB_ROOT, train_ratio=0.5):

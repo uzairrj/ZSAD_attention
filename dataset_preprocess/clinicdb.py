@@ -1,13 +1,12 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-ClinicDB_ROOT = os.path.join(DATA_ROOT, 'CVC-ClinicDB')
+ClinicDB_ROOT = "/media/data/ukhan/data/medical_cv/ClinicDB"
 
 class ClinicDBSolver(object):
     CLSNAMES = [
-        'ClinicDB',
+        'Colon_clinicDB',
     ]
 
     def __init__(self, root=ClinicDB_ROOT, train_ratio=0.5):

@@ -1,9 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-TN3K_ROOT = os.path.join(DATA_ROOT, 'TN3K')
+TN3K_ROOT = ""
 
 class TN3KSolver(object):
     CLSNAMES = [

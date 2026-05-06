@@ -1,17 +1,15 @@
 import os
 import json
 import random
-# from dataset import MPDD_ROOT
-# from  dataset.mpdd import MPDD_ROOT
 
+kasvair_ROOT = "/media/data/ukhan/data/medical_cv/Kvasir"
 
-HEADCT_ROOT = '/media/data/ukhan/data/medical_cv/HeadCT_anomaly_detection'
-class HEADCTSolver(object):
+class kasvairSolver(object):
     CLSNAMES = [
-        'headct',
+        'kvasir',
     ]
 
-    def __init__(self, root=HEADCT_ROOT, train_ratio=0.5):
+    def __init__(self, root=kasvair_ROOT, train_ratio=0.5):
         self.root = root
         self.meta_path = f'{root}/meta.json'
         self.train_ratio = train_ratio
@@ -29,12 +27,13 @@ class HEADCTSolver(object):
                 for specie in species:
                     is_abnormal = True if specie not in ['good'] else False
                     img_names = os.listdir(f'{cls_dir}/{phase}/{specie}')
+                    mask_names = os.listdir(f'{cls_dir}/ground_truth/{specie}') if is_abnormal else None
                     img_names.sort()
-
+                    mask_names.sort() if mask_names is not None else None
                     for idx, img_name in enumerate(img_names):
                         info_img = dict(
                             img_path=f'{cls_name}/{phase}/{specie}/{img_name}',
-                            mask_path=f'',
+                            mask_path=f'{cls_name}/ground_truth/{specie}/{mask_names[idx]}' if is_abnormal else '',
                             cls_name=cls_name,
                             specie_name=specie,
                             anomaly=1 if is_abnormal else 0,
@@ -48,5 +47,5 @@ class HEADCTSolver(object):
 
 
 if __name__ == '__main__':
-    runner = HEADCTSolver(root=HEADCT_ROOT)
+    runner = kasvairSolver(root=kasvair_ROOT)
     runner.run()

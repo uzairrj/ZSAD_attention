@@ -1,13 +1,14 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-ISIC_ROOT = os.path.join(DATA_ROOT, 'ISIC')
+
+ISIC_ROOT = "/media/data/ukhan/data/medical_cv/ISIC"
+
 
 class ISICSolver(object):
     CLSNAMES = [
-        'isic',
+        'skin',
     ]
 
     def __init__(self, root=ISIC_ROOT, train_ratio=0.5):

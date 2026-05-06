@@ -1,16 +1,20 @@
 import os
+
+from dataset_preprocess.colondb import ColonDB_ROOT
+
+from dataset_preprocess.colondb import ColonDB_ROOT
 from .base_dataset import BaseDataset
 
 '''dataset source: http://mv.cvc.uab.es/projects/colon-qa/cvccolondb'''
 ColonDB_CLS_NAMES = [
-    'Colon_colonDB',
+    'kvasie',
 ]
 
-ColonDB_ROOT = "/media/data/ukhan/data/medical_cv/ColonDB"
+kvasir_ROOT = '/media/data/ukhan/data/medical_cv/Kvasir'
 
-class ColonDBDataset(BaseDataset):
+class KvasirDataset(BaseDataset):
     def __init__(self, transform, target_transform, clsnames, root, training=True):
-        super(ColonDBDataset, self).__init__(
+        super(KvasirDataset, self).__init__(
             clsnames=clsnames, transform=transform, target_transform=target_transform,
             root=root, training=training
         )

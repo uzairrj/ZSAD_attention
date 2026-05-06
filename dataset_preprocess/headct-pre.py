@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import shutil
 import argparse
 
-from config import DATA_ROOT
+DATA_ROOT = ""
 
 dataset_root = os.path.join(DATA_ROOT, 'head_ct')
 

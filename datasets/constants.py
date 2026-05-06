@@ -4,13 +4,12 @@ class DatasetConstants:
         self.dataset_name = dataset_name.lower()
 
         self.DATA_PATH = {
-            "brain": f"{base_path}/MedAD/Brain_AD",
-            "liver": f"{base_path}/MedAD/Liver_AD",
-            "retina": f"{base_path}/MedAD/Retina_RESC_AD",
-            "colon_clinicdb": f"{base_path}/Colon/CVC-ClinicDB",
-            "colon_colondb": f"{base_path}/Colon/CVC-ColonDB",
-            "colon_cvc300": f"{base_path}/Colon/CVC-300",
-            "colon_kvasir": f"{base_path}/Colon/Kvasir",
+            "isic": f"{base_path}/ISIC",
+            "tn3k": f"{base_path}/TN3K",
+            "clinicdb": f"{base_path}/ClinicDB",
+            "colondb": f"{base_path}/ColonDB",
+            "kvasir": f"{base_path}/Kvasir",
+
             "btad": f"{base_path}/btad",
             "mpdd": f"{base_path}/MPDD",
             "mvtec": f"{base_path}/mvtec",
@@ -19,16 +18,16 @@ class DatasetConstants:
             "ksdd": f"{base_path}/SDD_anomaly_detection",
             "dagm": f"{base_path}/DAGM_anomaly_detection",
             "ksdd2": f"{base_path}/KSDD2",
+            "endo" : f"{base_path}/Endo",
+            "br35h" : f"{base_path}/Br35h_anomaly_detection",
+            "brainmri" : f"{base_path}/BrainMRI",
+            "tn3k" : f"{base_path}/TN3K",
+            "headct" : f"{base_path}/HeadCT_anomaly_detection",
         }
 
         self.CLASS_NAMES = {
-            "brain": ["Brain"],
-            "liver": ["Liver"],
-            "retina": ["Retina"],
-            "colon_clinicdb": ["Colon_clinicDB"],
-            "colon_colondb": ["Colon_colonDB"],
-            "colon_kvasir": ["Kvasir"],
-            "colon_cvc300": ["CVC-300"],
+            "isic": ['skin'],
+            "tn3k": ['tn3k'],
             "mvtec": [
                 "bottle",
                 "cable",
@@ -97,6 +96,14 @@ class DatasetConstants:
                 "Class10",
             ],
             "ksdd2": ["SDD2"],
+            "clinicdb": ["Colon_clinicDB"],
+            "colondb": ["Colon_colonDB"],
+            "kvasir": ["kvasir"],
+            "endo": ["endo"],
+            "br35h": ["br35h"],
+            "brainmri": ["brainmri"],
+            "tn3k": ["tn3k"],
+            "headct": ["headct"],
         }
 
         self.DOMAINS = {
@@ -104,23 +111,30 @@ class DatasetConstants:
             "btad": "Industrial",
             "mpdd": "Industrial",
             "mvtec": "Industrial",
-            "brain": "Medical",
-            "liver": "Medical",
-            "retina": "Medical",
-            "colon_clinicdb": "Medical",
-            "colon_colondb": "Medical",
-            "colon_kvasir": "Medical",
-            "colon_cvc300": "Medical",
             "dtd": "industrial",
             "ksdd": "industrial",
             "dagm": "industrial",
             "ksdd2": "industrial",
+
+            'isic': "medical",
+            'tn3k': "medical",
+            "clinicdb": "medical",
+            "colondb": "medical",
+            "kvasir": "medical",
+            "endo": "medical",
+            "br35h": "medical",
+            "brainmri": "medical",
+            "tn3k": "medical",
+            "headct": "medical",
         }
 
         self.REAL_NAMES = {
-            "brain": {"Brain": "scan"},
-            "liver": {"Liver": "scan"},
-            "retina": {"Retina": "scan"},
+            "isic": {
+                "skin": "skin lesion",
+            },
+            "tn3k": {
+                "tn3k": "colonoscopy image",
+            },
             "mvtec": {
                 "bottle": "dark bottle",
                 "cable": "top view of three cables",
@@ -152,14 +166,30 @@ class DatasetConstants:
                 "fryum": "wheel-shaped fryum snack",
                 "pcb1": "dual ultrasonic distance sensor pcb module",
             },
-            "colon_clinicdb": {
-                "Colon_clinicDB": "colon endoscopy image",
+            "clinicdb": {
+                "Colon_clinicDB": "colon endoscopy",
             },
-            "colon_colondb": {
-                "Colon_colonDB": "colon endoscopy image",
+            "colondb": {
+                "Colon_colonDB": "colon endoscopy",
             },
-            "colon_cvc300": {"CVC-300": "colon endoscopy image"},
-            "colon_kvasir": {"Kvasir": "colon endoscopy image"},
+            "kvasir": {
+                "kvasir": "colon endoscopy"
+            },
+            "endo": {
+                "endo": "endoscopic"
+            },
+            "br35h": {
+                "br35h": "brain MRI"
+            },
+            "brainmri": {
+                "brainmri": "brain MRI"
+            },
+            "tn3k": {
+                "tn3k": "thyroid ultrasound"
+            },
+            "headct": {
+                "headct": "head CT scan"
+            },
             # "mpdd": {
             #     "connector": "metal clamps with black adjustment knobs",
             #     "tubes": "scattered metal objects",
@@ -213,7 +243,7 @@ class DatasetConstants:
                     "Class9": "coarse noisy grayscale industrial texture surface",
                     "Class10": "light brushed grayscale industrial texture surface",
                 },
-                }
+        }
 
         self.PROMPTS = {
             "prompt_normal": ['{}', 'flawless {}', 'perfect {}', 'unblemished {}', 

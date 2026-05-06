@@ -3,9 +3,10 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import cv2
 import argparse
-from config import DATA_ROOT
 
-dataset_root = os.path.join(DATA_ROOT, 'DAGM2007')
+DATA_ROOT = '/media/data/ukhan/data/computer_vision'
+
+dataset_root = os.path.join(DATA_ROOT, 'DAGM_anomaly_detection')
 
 class_names = os.listdir(dataset_root)
 

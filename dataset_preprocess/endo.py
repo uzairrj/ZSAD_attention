@@ -1,9 +1,8 @@
 import os
 import json
 import random
-from config import DATA_ROOT
 
-ENDO_ROOT = os.path.join(DATA_ROOT, 'EndoTect')
+ENDO_ROOT = "/media/data/ukhan/data/medical_cv/Endo"
 
 class ENDOSolver(object):
     CLSNAMES = [
