@@ -50,7 +50,7 @@ def training(args):
         losses = {
             'anomaly_awareness_loss': 0.0,
             'segmentation_loss': 0.0,
-            'global_anomaly_loss': 0.0,
+            'text_anomaly_loss': 0.0,
             'total_loss': 0.0
         }
         for data in tqdm(dataloader):
@@ -67,7 +67,7 @@ def training(args):
             
             cls, patches = image_encoder(data['img'])
 
-            cross_model_contrastive, global_anomaly_alignment = model(batched_text_embeddings, [cls, patches])
+            cross_model_contrastive, text_branch_logits = model(batched_text_embeddings, [cls, patches])
             
             
             mask = data['img_mask'].to(args.device).float()
@@ -78,12 +78,12 @@ def training(args):
 
             # anomaly_awareness_loss = F.binary_cross_entropy_with_logits(anomaly_aware_calibration, mask) + loss_dice(anomaly_awareness_prob, mask)
             seg_loss = loss_focal(cross_model_contrastive, mask) + loss_dice(cross_model_prob, mask)
-            global_anomaly_loss = loss_focal(global_anomaly_alignment, anomaly_targets)
-            loss =   0.5 * seg_loss + 0.5 * global_anomaly_loss
+            text_anomaly_loss = loss_focal(text_branch_logits, anomaly_targets)
+            loss =   0.5 * seg_loss + 0.5 * text_anomaly_loss
 
             # losses['anomaly_awareness_loss'] += anomaly_awareness_loss.item()
             losses['segmentation_loss'] += seg_loss.item()
-            losses['global_anomaly_loss'] += global_anomaly_loss.item()
+            losses['text_anomaly_loss'] += text_anomaly_loss.item()
             losses['total_loss'] += loss.item()
 
             optimizer.zero_grad()
@@ -91,5 +91,5 @@ def training(args):
             optimizer.step()
         
         losses = {k: v / len(dataloader) for k, v in losses.items()}
-        print(f"Epoch {epoch+1}/{args.end_epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']:.4f}, Segmentation Loss: {losses['segmentation_loss']:.4f}, Global Anomaly Loss: {losses['global_anomaly_loss']:.4f}, Total Loss: {losses['total_loss']:.4f}", flush=True)
+        print(f"Epoch {epoch+1}/{args.end_epochs}:Anomaly Awareness Loss: {losses['anomaly_awareness_loss']:.4f}, Segmentation Loss: {losses['segmentation_loss']:.4f}, Text Anomaly Loss: {losses['text_anomaly_loss']:.4f}, Total Loss: {losses['total_loss']:.4f}", flush=True)
         save_model(model, args.output_dir, epoch+1)
