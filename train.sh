@@ -1,0 +1,1 @@
+python main.py --mode train --dataset_name mvtec --output_dir ./checkpoints_mvtec --start_epochs 0 --end_epochs 30 --device cuda:0 > train_mvtec.log
