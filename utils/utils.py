@@ -63,7 +63,7 @@ def save_model(model, path, epoch):
         os.makedirs(path, exist_ok=True)
 
     torch.save(model.state_dict(), os.path.join(path, f'model_epoch_{epoch}.pth'))
-
+    
 def fast_auc_and_best_f1(y_true, y_score):
     """
     Exact AUROC + best F1 using one sort only.
@@ -79,9 +79,9 @@ def fast_auc_and_best_f1(y_true, y_score):
 
     # Edge cases
     if n_pos == 0:
-        return float("nan"), 0.0
+        return float("nan"), 0.0, float("-inf")
     if n_neg == 0:
-        return float("nan"), 1.0
+        return float("nan"), 1.0, float("inf")
 
     # Sort once by descending score
     order = np.argsort(-y_score, kind="mergesort")
@@ -104,6 +104,13 @@ def fast_auc_and_best_f1(y_true, y_score):
     f1 = 2.0 * precision * recall / (precision + recall + 1e-12)
     best_f1 = float(f1.max()) if f1.size > 0 else 0.0
 
+    if f1.size == 0:
+        return 0.0, float("inf"), float("inf")
+
+    best_idx = int(np.argmax(f1))
+    best_f1 = float(f1[best_idx])
+    best_threshold = float(y_score_sorted[idx[best_idx]])
+
     # ----- AUROC -----
     tpr = tp / n_pos
     fpr = fp / n_neg
@@ -113,4 +120,4 @@ def fast_auc_and_best_f1(y_true, y_score):
     fpr = np.r_[0.0, fpr]
 
     auroc = float(np.trapezoid(tpr, fpr))
-    return auroc, best_f1
+    return auroc, best_f1, best_threshold
