@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DATASETS=("mvtec" "ksdd" "ksdd2" "dtd" "mpdd" "btad")
+DATASETS=("btad" "dagm")
 
-LOG_DIR="./new_logs"
+LOG_DIR="./logs_new"
 
 mkdir -p "${LOG_DIR}"
 
@@ -15,7 +15,7 @@ do
         --dataset_name "${DATASET}" \
         --start_epochs 0 \
         --end_epochs 30 \
-        --device cuda:0 \
+        --device cuda:1 \
         --output_dir "./checkpoints_visa" \
         > "${LOG_DIR}/${DATASET}.log"
 

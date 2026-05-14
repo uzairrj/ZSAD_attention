@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DATASETS=("brainmri" "clinicdb" "colondb" "kvasir" "endo" "br35h" "ISIC" "dagm")
+DATASETS=("tn3k" "headct" "brainmri" "clinicdb" "colondb" "kvasir" "endo" "br35h" "isic")
 
-LOG_DIR="./new_logs"
+LOG_DIR="./logs_new"
 
 mkdir -p "${LOG_DIR}"
 
@@ -15,7 +15,7 @@ do
         --dataset_name "${DATASET}" \
         --start_epochs 0 \
         --end_epochs 30 \
-        --device cuda:1 \
+        --device cuda:0 \
         --output_dir "./checkpoints_visa" \
         > "${LOG_DIR}/${DATASET}.log"
 

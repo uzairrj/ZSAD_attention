@@ -212,3 +212,10 @@ checkpoints/
 *.pt
 *.pth
 *.logs
+*.npz
+*.jpg
+*.png
+*.gif
+*.bmp
+*.zip
+*.json

@@ -36,8 +36,8 @@ def prompt_generator(dataset):
                     template.format(text)
                 )
 
-    with open(f'{dataset.dataset_name}_generated_prompts.json', 'w') as f:
-        json.dump(generated_prompts, f, indent=4)
+    # with open(f'{dataset.dataset_name}_generated_prompts.json', 'w') as f:
+    #     json.dump(generated_prompts, f, indent=4)
 
     return generated_prompts
 

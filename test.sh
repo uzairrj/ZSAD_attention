@@ -2,7 +2,7 @@
 
 DATASET="visa"
 
-LOG_DIR="./new_logs"
+LOG_DIR="./logs_all"
 
 mkdir -p "${LOG_DIR}"
 
