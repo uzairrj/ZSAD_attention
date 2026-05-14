@@ -28,7 +28,7 @@ class CrossAttention(Module):
         v = self.v_proj(context).view(batch_size, seq_len_ctx, self.num_heads, self.head_dim).transpose(1, 2)
         return q, k, v
 
-    def forward(self, x, context):
+    def forward(self, x, context, residual=True):
         batch_size, seq_len_x, _ = x.size()
 
         q, k, v = self._qkv(x, context)
@@ -39,4 +39,4 @@ class CrossAttention(Module):
         attn_output = torch.matmul(attn_weights, v).transpose(1, 2).contiguous().view(batch_size, seq_len_x, self.dim)
         output = self.out_proj(attn_output)
         
-        return self.norm(output + x)
+        return self.norm(output + x) if residual else self.norm(output)
