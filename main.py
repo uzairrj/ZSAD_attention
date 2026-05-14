@@ -18,6 +18,7 @@ if __name__ == "__main__":
     args_parser.add_argument('--end_epochs', type=int, default=20, help='Ending epoch for training or testing')
     args_parser.add_argument('--device', type=str, default='cuda:0', help='Device to use for training/testing')
     args_parser.add_argument('--output_dir', type=str, default='./checkpoints', help='Output directory for checkpoints and results')
+    args_parser.add_argument('--global_topk_ratio', type=float, default=0.01, help='Top patch ratio for global patch-text contrast')
 
     args = args_parser.parse_args()
 
@@ -41,7 +42,8 @@ if __name__ == "__main__":
         'start_epochs': args.start_epochs,
         'end_epochs': args.end_epochs,
         'output_dir': args.output_dir,
-        'out_dim': 768
+        'out_dim': 768,
+        'global_topk_ratio': args.global_topk_ratio
     }
 
 
