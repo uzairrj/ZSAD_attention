@@ -179,10 +179,10 @@ class DatasetConstants:
                 "endo": "endoscopic"
             },
             "br35h": {
-                "br35h": "brain MRI"
+                "br35h": "grayscale brain scan"
             },
             "brainmri": {
-                "brainmri": "brain MRI"
+                "brainmri": "brain scan"
             },
             "tn3k": {
                 "tn3k": "thyroid ultrasound"
