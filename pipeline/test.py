@@ -10,14 +10,7 @@ from datasets import get_data
 from utils.transformations import get_transforms
 from model.model import ZSADModel
 import numpy as np
-
-def testing_epoch(dataloader, model, image_encoder, text_embeddings):
-    pixel_gt = []
-    pixel_pred = []
-    image_gt = []
-    image_model_pred = []
-    img_list = []
-    cls_list = []
+def inference_batches(dataloader, model, image_encoder, text_embeddings):
     for data in tqdm(dataloader):
         normal_list = []
         abnormal_list = []
@@ -36,24 +29,50 @@ def testing_epoch(dataloader, model, image_encoder, text_embeddings):
         pixel_anomaly_map = torch.sigmoid(cross_model_contrastive[:, 0, :, :])
         image_model_score = torch.sigmoid(image_level_logits).view(-1)
 
-        pixel_gt.extend(data['img_mask'].squeeze(1).cpu().detach().numpy())
-        image_gt.extend(data['anomaly'].cpu().detach().numpy())
-        img_list.extend(data["img_path"])
-        pixel_pred.extend(pixel_anomaly_map.cpu().detach().numpy())
-        image_model_pred.extend(image_model_score.cpu().detach().numpy())
-        cls_list.extend(data['cls_name'])
+        yield {
+            "gt_masks": data['img_mask'].squeeze(1).cpu().detach().numpy(),
+            "pred_masks": pixel_anomaly_map.cpu().detach().numpy().astype(np.float32, copy=False),
+            "gt_images": data['anomaly'].cpu().detach().numpy().astype(np.uint8, copy=False),
+            "pred_images": image_model_score.cpu().detach().numpy().astype(np.float32, copy=False),
+            "img_paths": list(data["img_path"]),
+            "cls_names": list(data['cls_name']),
+        }
 
-    gt_mask_list = np.array(pixel_gt)   
-    pred_mask_list = np.array(pixel_pred) 
-    gt_image_list = np.array(image_gt)
-    pred_image_model_list = np.array(image_model_pred)
-    cls_list = np.array(cls_list)
 
-    cls_list = np.asarray(cls_list)
-    gt_mask_list = np.asarray(gt_mask_list)
-    pred_mask_list = np.asarray(pred_mask_list, dtype=np.float32)
-    gt_image_list = np.asarray(gt_image_list, dtype=np.uint8)
-    pred_image_model_list = np.asarray(pred_image_model_list, dtype=np.float32)
+def inference_epoch(dataloader, model, image_encoder, text_embeddings):
+    pixel_gt = []
+    pixel_pred = []
+    image_gt = []
+    image_model_pred = []
+    img_list = []
+    cls_list = []
+
+    for outputs in inference_batches(dataloader, model, image_encoder, text_embeddings):
+        pixel_gt.extend(outputs["gt_masks"])
+        pixel_pred.extend(outputs["pred_masks"])
+        image_gt.extend(outputs["gt_images"])
+        image_model_pred.extend(outputs["pred_images"])
+        img_list.extend(outputs["img_paths"])
+        cls_list.extend(outputs["cls_names"])
+
+    return {
+        "gt_masks": np.asarray(pixel_gt),
+        "pred_masks": np.asarray(pixel_pred, dtype=np.float32),
+        "gt_images": np.asarray(image_gt, dtype=np.uint8),
+        "pred_images": np.asarray(image_model_pred, dtype=np.float32),
+        "img_paths": np.asarray(img_list),
+        "cls_names": np.asarray(cls_list),
+    }
+
+
+def testing_epoch(dataloader, model, image_encoder, text_embeddings):
+    outputs = inference_epoch(dataloader, model, image_encoder, text_embeddings)
+
+    gt_mask_list = outputs["gt_masks"]
+    pred_mask_list = outputs["pred_masks"]
+    gt_image_list = outputs["gt_images"]
+    pred_image_model_list = outputs["pred_images"]
+    cls_list = outputs["cls_names"]
 
 
     auroc_list = []
@@ -70,8 +89,8 @@ def testing_epoch(dataloader, model, image_encoder, text_embeddings):
         gt_image_cls = gt_image_list[idx].astype(np.uint8, copy=False)
         pred_image_model_cls = pred_image_model_list[idx].astype(np.float32, copy=False)
 
-        auroc, f1 = fast_auc_and_best_f1(gt_cls, pred_cls)
-        image_auroc, image_f1 = fast_auc_and_best_f1(gt_image_cls, pred_image_model_cls)
+        auroc, f1, _ = fast_auc_and_best_f1(gt_cls, pred_cls)
+        image_auroc, image_f1, _ = fast_auc_and_best_f1(gt_image_cls, pred_image_model_cls)
 
         if not np.isnan(auroc):
             auroc_list.append(auroc)
