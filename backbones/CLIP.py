@@ -1,9 +1,9 @@
 import torch
-from transformers import AutoTokenizer, CLIPModel
+from transformers import AutoTokenizer, CLIPModel, AutoProcessor
 
 class CLIPTextEncoder():
 
-    def __init__(self, model_id="openai/clip-vit-large-patch14-336", device='cpu'):
+    def __init__(self, model_id="openai/clip-vit-large-patch14-336",layers=[-1], device='cpu'):
 
         self.model_id = model_id
         self.device = device 
@@ -11,6 +11,8 @@ class CLIPTextEncoder():
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.model = CLIPModel.from_pretrained(self.model_id).to(self.device)
         self.model.eval()
+        self.processor = AutoProcessor.from_pretrained(self.model_id)
+        self.layers = layers
 
     def __call__(self, texts):
         inputs = self.tokenizer(
@@ -25,9 +27,29 @@ class CLIPTextEncoder():
             text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
         return text_features
+
+    def get_image_features(self, images):
+
+
+        with torch.inference_mode():
+            outputs = self.model.vision_model(
+                pixel_values=images.to(self.device),
+                output_hidden_states=True
+            )
+
+        hidden_states = outputs.hidden_states
+
+        selected = [hidden_states[layer] for layer in self.layers]
+
+        cls = torch.stack([h[:, 0, :] for h in selected], dim=1)
+        patches = torch.stack([h[:, 1:, :] for h in selected], dim=1)
+        return cls, patches
+    
+        
     
 if __name__ == "__main__":
     encoder = CLIPTextEncoder()
     texts = ["a normal brain scan", "a damaged brain scan"]
     features = encoder(texts)
     print(features.shape)
+

@@ -41,9 +41,9 @@ def prompt_generator(dataset):
 
     return generated_prompts
 
-def generate_clip_text_embeddings(args, dataset):
+def generate_clip_text_embeddings(clip_text_encoder, dataset):
     prompts = prompt_generator(dataset)
-    clip_text_encoder = CLIPTextEncoder(args.model_id, args.device)
+    
 
     embeddings = {}
     

@@ -7,6 +7,7 @@ from utils.loss import BinaryDiceLoss, BinaryFocalLossWithLogits
 from utils.utils import generate_clip_text_embeddings, save_model
 from tqdm import tqdm
 from backbones.DINO import DINOImageEncoder
+from backbones.CLIP import CLIPTextEncoder
 from torch.utils.data import DataLoader
 from datasets import get_data
 from utils.transformations import get_transforms
@@ -15,8 +16,10 @@ from model.model import ZSADModel
 def training(args):
     dataset_constants = DatasetConstants(args.base_dir, args.dataset_name)
 
+    clip_text_encoder = CLIPTextEncoder(args.model_id, args.vision_layers, args.device)
+
     # Cache CLIP text embeddings
-    text_embeddings = generate_clip_text_embeddings(args, dataset_constants)
+    text_embeddings = generate_clip_text_embeddings(clip_text_encoder, dataset_constants)
 
     transform_img, transform_mask = get_transforms(args.img_size)
 
@@ -31,7 +34,8 @@ def training(args):
         print("No pre-trained model found. Starting training from scratch.")
         args.start_epochs = 0
 
-    image_encoder = DINOImageEncoder(args.vision_model_id, args.vision_layers, device=args.device)
+    # image_encoder = DINOImageEncoder(args.vision_model_id, args.vision_layers, device=args.device)
+    image_encoder = clip_text_encoder.get_image_features
 
     dataset = get_data(args.dataset_name, transform_img, transform_mask, training=True)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4, pin_memory=True)
