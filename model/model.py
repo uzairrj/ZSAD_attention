@@ -1,7 +1,6 @@
-from torch.nn import Linear, Module, ModuleList, Parameter, functional as F
+from torch.nn import Module, ModuleList, Parameter, functional as F
 from .adapters import Adapter
 import torch
-from .attention import CrossAttention
 
 class ZSADModel(Module):
     def __init__(self, args):
@@ -18,12 +17,6 @@ class ZSADModel(Module):
 
 
         self.text_logit_scale = Parameter(torch.ones([]) * torch.log(torch.tensor(1 / 0.07)))
-
-        self.cross_model_contrastive_learning_attention = ModuleList([CrossAttention(args.out_dim, 1, 0.2)
-                                                                      for _ in range(self.number_of_vision_layers)])
-
-        self.cross_model_contrastive_head = ModuleList([Linear(args.out_dim, 1)
-                                                        for _ in range(self.number_of_vision_layers)])
 
         self.layer_logits = Parameter(torch.zeros(self.number_of_vision_layers))
         self.cls_layer_logits = Parameter(torch.zeros(self.number_of_vision_layers))
@@ -50,17 +43,29 @@ class ZSADModel(Module):
             return text_embeddings[:, 0], text_embeddings[:, 1]
         return text_embeddings[:, 0].unsqueeze(1), text_embeddings[:, 1].unsqueeze(1)
 
-    def merge_text_embeddings(self, normal_text_adapted, abnormal_text_adapted):
-        return torch.cat([normal_text_adapted, abnormal_text_adapted], dim=1)
+    def average_text_embeddings(self, normal_text_adapted, abnormal_text_adapted):
+        normal_avg = normal_text_adapted.mean(dim=1)
+        abnormal_avg = abnormal_text_adapted.mean(dim=1)
+        return normal_avg, abnormal_avg
 
-    def cross_model_contrastive_learning(self, text_embeddings_adapted, patch_embeddings_adapted, layer_idx):
-        patch_features = self.cross_model_contrastive_learning_attention[layer_idx](
+    def cross_model_contrastive_learning(self, patch_embeddings_adapted, normal_text_avg, abnormal_text_avg):
+        normal_sim = F.cosine_similarity(
             patch_embeddings_adapted,
-            text_embeddings_adapted,
+            normal_text_avg.unsqueeze(1),
+            dim=-1,
         )
-        cross_modal_patch_logits = self.cross_model_contrastive_head[layer_idx](patch_features)
-        anomaly_map_cross_modal = F.interpolate(self.patch_logits_to_map(cross_modal_patch_logits),
-                                    size=self.img_size, mode='bilinear', align_corners=True)
+        abnormal_sim = F.cosine_similarity(
+            patch_embeddings_adapted,
+            abnormal_text_avg.unsqueeze(1),
+            dim=-1,
+        )
+        cross_modal_patch_logits = (abnormal_sim - normal_sim).unsqueeze(-1)
+        anomaly_map_cross_modal = F.interpolate(
+            self.patch_logits_to_map(cross_modal_patch_logits),
+            size=self.img_size,
+            mode='bilinear',
+            align_corners=True,
+        )
         return anomaly_map_cross_modal, cross_modal_patch_logits
 
     def text_contrast_logits(self, image_embeddings, normal_text_adapted, abnormal_text_adapted):
@@ -127,7 +132,10 @@ class ZSADModel(Module):
         positive_text_adapted = self.normalize_features(positive_text_adapted)
         negative_text_adapted = self.negative_text_adapter(abnormal_text_embeddings)
         negative_text_adapted = self.normalize_features(negative_text_adapted)
-        adapted_text_embeddings = self.merge_text_embeddings(positive_text_adapted, negative_text_adapted)
+        normal_text_avg, abnormal_text_avg = self.average_text_embeddings(
+            positive_text_adapted,
+            negative_text_adapted,
+        )
 
         cls_embeddings_adapted = []
         for i in range(self.number_of_vision_layers):
@@ -145,9 +153,9 @@ class ZSADModel(Module):
         cross_modal_patch_logits = []
         for i in range(self.number_of_vision_layers):
             anomaly_map_cross_modal, patch_logits = self.cross_model_contrastive_learning(
-                adapted_text_embeddings,
                 patch_embeddings_adapted[i],
-                i,
+                normal_text_avg,
+                abnormal_text_avg,
             )
             cross_model_contrastive.append(anomaly_map_cross_modal)
             cross_modal_patch_logits.append(patch_logits)
