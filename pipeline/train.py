@@ -16,7 +16,7 @@ from model.model import ZSADModel
 def training(args):
     dataset_constants = DatasetConstants(args.base_dir, args.dataset_name)
 
-    clip_text_encoder = CLIPTextEncoder(args.model_id, args.vision_layers, args.device)
+    clip_text_encoder = CLIPTextEncoder(args.model_id, args.vision_layers, args.device, image_size=args.img_size)
 
     # Cache CLIP text embeddings
     text_embeddings = generate_clip_text_embeddings(clip_text_encoder, dataset_constants)

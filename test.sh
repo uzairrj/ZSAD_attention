@@ -15,7 +15,7 @@ python main.py \
     --start_epochs 0 \
     --end_epochs 30 \
     --device cuda:1 \
-    --output_dir "./checkpoints_mvtec" \
+    --output_dir "./checkpoints_visa_clip_img_encoder" \
     > "${LOG_DIR}/${DATASET}.log"
 
 echo "Finished dataset: ${DATASET}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DATASETS=("btad" "dagm")
+DATASETS=("mvtec")
 
 LOG_DIR="./logs_new"
 
